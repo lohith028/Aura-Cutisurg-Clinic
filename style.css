@@ -207,10 +207,10 @@ img {
     font-weight: 600;
 }
 
-/* WhatsApp Button */
+/* WhatsApp Button — sits ABOVE the Botpress chatbot */
 .whatsapp-float {
     position: fixed;
-    bottom: 30px;
+    bottom: 105px;         /* 30px (chatbot) + 60px (chatbot height) + 15px gap */
     right: 30px;
     width: 60px;
     height: 60px;
@@ -220,8 +220,9 @@ img {
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-    z-index: 9999;
-    transition: var(--transition);
+    z-index: 10001;        /* Always on top of Botpress */
+    transition: 0.3s ease;
+    animation: floatPulse 2.5s ease-in-out infinite;
 }
 
 .whatsapp-float:hover {
@@ -235,23 +236,36 @@ img {
     font-size: 2rem;
 }
 
-/* Botpress Chatbot Positioning */
-#bp-web-widget-container,
-#botpress-webchat-container,
-.bp-widget-launcher {
-    bottom: 110px !important; /* Higher up to avoid overlap */
-    right: 30px !important;
-    transition: var(--transition) !important;
+/* Shared pulse animation for both floating buttons */
+@keyframes floatPulse {
+    0%, 100% { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); }
+    50%       { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 0 6px rgba(37, 211, 102, 0.15); }
 }
 
-/* Ensuring Botpress launcher is the same size as WhatsApp button (60px) */
-#bp-web-widget-container iframe,
-#botpress-webchat-container iframe,
-.bp-widget-launcher iframe,
-.bpw-floating-button {
+/* ── Botpress Webchat v3 Positioning & Sizing ──────────────────────────── */
+/* The widget renders itself at bottom-right; we lock it to bottom: 30px, right: 30px */
+#bp-web-widget-container,
+[id="bp-web-widget-container"],
+div[class*="bpw-widget-btn"],
+div[class*="bp-widget"] {
+    bottom: 30px !important;
+    right: 30px !important;
+    z-index: 10000 !important;
+}
+
+/* Force the launcher button to be 60×60 — covers all v3 class variations */
+.bpw-widget-btn,
+.bpw-floating-button,
+[class*="bpw-widget-btn"],
+[class*="floating-button"],
+#bp-web-widget-container button,
+#bp-web-widget-container > div > button,
+#bp-web-widget-container iframe {
     width: 60px !important;
     height: 60px !important;
+    border-radius: 50% !important;
 }
+
 
 
 

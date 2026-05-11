@@ -236,18 +236,23 @@ img {
 }
 
 /* Botpress Chatbot Positioning */
-#bp-web-widget-container {
-    bottom: 105px !important; /* Above WhatsApp (30px + 60px + 15px gap) */
+#bp-web-widget-container,
+#botpress-webchat-container,
+.bp-widget-launcher {
+    bottom: 110px !important; /* Higher up to avoid overlap */
     right: 30px !important;
     transition: var(--transition) !important;
 }
 
 /* Ensuring Botpress launcher is the same size as WhatsApp button (60px) */
-#bp-web-widget-container iframe[id^="bp-widget-launcher"],
-#bp-web-widget-container .bpw-floating-button {
+#bp-web-widget-container iframe,
+#botpress-webchat-container iframe,
+.bp-widget-launcher iframe,
+.bpw-floating-button {
     width: 60px !important;
     height: 60px !important;
 }
+
 
 
 @keyframes fadeInUp {

@@ -242,31 +242,50 @@ img {
     50%       { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 0 6px rgba(37, 211, 102, 0.15); }
 }
 
-/* ── Botpress Webchat v3 Positioning & Sizing ──────────────────────────── */
-/* The widget renders itself at bottom-right; we lock it to bottom: 30px, right: 30px */
-#bp-web-widget-container,
-[id="bp-web-widget-container"],
-div[class*="bpw-widget-btn"],
-div[class*="bp-widget"] {
+/* ── Botpress Webchat v3.6 — Position & Size ─────────────────────────────
+   Chatbot sits at bottom-right (30px). WhatsApp sits 105px from bottom.
+   The Botpress container wraps both the launcher button AND the chat window,
+   so we only clamp its closed-state size via the launcher selectors.
+   ─────────────────────────────────────────────────────────────────────── */
+
+/* Lock the outer container to the bottom-right corner */
+#bp-web-widget-container {
+    position: fixed !important;
     bottom: 30px !important;
     right: 30px !important;
     z-index: 10000 !important;
+    /* Remove any default margin/padding that shifts alignment */
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-/* Force the launcher button to be 60×60 — covers all v3 class variations */
-.bpw-widget-btn,
-.bpw-floating-button,
-[class*="bpw-widget-btn"],
-[class*="floating-button"],
-#bp-web-widget-container button,
+/* Target every possible launcher button selector Botpress v3 uses */
+#bp-web-widget-container button[aria-label],
 #bp-web-widget-container > div > button,
-#bp-web-widget-container iframe {
+#bp-web-widget-container > button,
+.bpw-floating-button,
+.bpw-widget-btn,
+[data-testid="webchat/launcher"] {
     width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
     height: 60px !important;
+    min-height: 60px !important;
+    max-height: 60px !important;
     border-radius: 50% !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+    /* Match WhatsApp pulse animation */
+    animation: floatPulse 2.5s ease-in-out infinite !important;
 }
 
-
+/* The inner icon/image inside the launcher */
+#bp-web-widget-container button[aria-label] > *,
+#bp-web-widget-container > div > button > *,
+.bpw-floating-button > * {
+    width: 36px !important;
+    height: 36px !important;
+    object-fit: contain !important;
+}
 
 
 @keyframes fadeInUp {

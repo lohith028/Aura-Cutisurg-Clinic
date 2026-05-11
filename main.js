@@ -52,56 +52,72 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * Botpress Webchat v3 — Force positioning below WhatsApp button.
- * WhatsApp sits at bottom:105px, Botpress sits at bottom:30px.
- * Uses MutationObserver to catch the widget after it injects into the DOM.
+ * Botpress Webchat v3.6 — Force position & size to match WhatsApp button.
+ * WhatsApp: bottom 105px | Botpress: bottom 30px | Both: 60×60px
  */
 (function positionBotpressWidget() {
-    const CHATBOT_BOTTOM  = '30px';
-    const CHATBOT_RIGHT   = '30px';
-    const CHATBOT_SIZE    = '60px';
-    const CHATBOT_ZINDEX  = '10000';
+    const RIGHT  = '30px';
+    const BOTTOM = '30px';
+    const SIZE   = '60px';
+    const ICON   = '36px';
 
-    function applyStyles(el) {
-        if (!el) return;
-        el.style.setProperty('bottom',    CHATBOT_BOTTOM,  'important');
-        el.style.setProperty('right',     CHATBOT_RIGHT,   'important');
-        el.style.setProperty('z-index',   CHATBOT_ZINDEX,  'important');
-        el.style.setProperty('position',  'fixed',         'important');
-
-        // Resize the launcher button inside the container
-        const btn = el.querySelector('button') || el.querySelector('[class*="widget-btn"]');
-        if (btn) {
-            btn.style.setProperty('width',         CHATBOT_SIZE, 'important');
-            btn.style.setProperty('height',        CHATBOT_SIZE, 'important');
-            btn.style.setProperty('border-radius', '50%',        'important');
-        }
+    function styleContainer(container) {
+        container.style.setProperty('position', 'fixed',   'important');
+        container.style.setProperty('bottom',   BOTTOM,    'important');
+        container.style.setProperty('right',    RIGHT,     'important');
+        container.style.setProperty('z-index',  '10000',   'important');
+        container.style.setProperty('margin',   '0',       'important');
+        container.style.setProperty('padding',  '0',       'important');
     }
 
-    // Try to apply immediately if already in DOM
-    function tryApply() {
-        const container = document.getElementById('bp-web-widget-container')
-                       || document.querySelector('[id^="bp-web-widget"]')
-                       || document.querySelector('[class*="bp-widget"]');
-        if (container) {
-            applyStyles(container);
-            return true;
-        }
-        return false;
+    function styleLauncher(btn) {
+        btn.style.setProperty('width',         SIZE,  'important');
+        btn.style.setProperty('height',        SIZE,  'important');
+        btn.style.setProperty('min-width',     SIZE,  'important');
+        btn.style.setProperty('min-height',    SIZE,  'important');
+        btn.style.setProperty('border-radius', '50%', 'important');
+        btn.style.setProperty('box-shadow',    '0 4px 15px rgba(0,0,0,0.4)', 'important');
+
+        // Resize inner icon (svg, img, span)
+        Array.from(btn.children).forEach(child => {
+            child.style.setProperty('width',      ICON,       'important');
+            child.style.setProperty('height',     ICON,       'important');
+            child.style.setProperty('object-fit', 'contain',  'important');
+            child.style.setProperty('display',    'flex',     'important');
+            child.style.setProperty('align-items','center',   'important');
+        });
     }
 
-    // Watch for Botpress to inject its container
-    const observer = new MutationObserver(() => {
-        if (tryApply()) {
-            // Keep observing for a bit longer in case widget re-renders
-            setTimeout(() => observer.disconnect(), 5000);
-        }
-    });
+    function applyAll() {
+        // Find the Botpress container by all known IDs/patterns
+        const container =
+            document.getElementById('bp-web-widget-container') ||
+            document.querySelector('[id^="bp-web-widget"]') ||
+            document.querySelector('[class*="bp-widget"]');
 
+        if (!container) return false;
+
+        styleContainer(container);
+
+        // Find the launcher button by all known selectors
+        const btn =
+            container.querySelector('[data-testid="webchat/launcher"]') ||
+            container.querySelector('button[aria-label]') ||
+            container.querySelector('button') ||
+            container.querySelector('.bpw-floating-button') ||
+            container.querySelector('.bpw-widget-btn');
+
+        if (btn) styleLauncher(btn);
+
+        return true;
+    }
+
+    // Watch for Botpress injecting itself
+    const observer = new MutationObserver(applyAll);
     observer.observe(document.body, { childList: true, subtree: true });
 
-    // Also try after delays to catch late-loading
-    setTimeout(tryApply, 1000);
-    setTimeout(tryApply, 3000);
+    // Retry at key moments
+    [500, 1000, 2000, 3000].forEach(ms => setTimeout(applyAll, ms));
 })();
+
 
